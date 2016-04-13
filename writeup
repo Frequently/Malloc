@@ -1,0 +1,73 @@
+/* Team Name: RNH
+ * Member 1: Rajan Pipaliya: 201401163@daiict.ac.in
+ * Member 2: Harshal shah: 201401165@daiict.ac.in
+ */
+
+MALLOC IN C :
+- Implemented using a segregate free list.
+- Advantage of using this free list is we only need to go through
+the free blocks when we need to allocate memory.
+- Best-Fit scanning algorithm is used to find the suitable free block.
+
+SEGREGATE FREE LIST :
+- Implemented using three methods, a global variable(array) pointing to the first
+block in repective freelists and four MACROS for getting and setting the next and previous
+blocks.
+    1) int getlist_index(size_t size);
+    2) void add_freelist (void *bp);
+    3) void delete_freelist (void *bp);
+    4) #define getNext(bp)
+    5) #define getPrev(bp)
+    6) #define setNext(bp, next)
+    7) #define setPrev(bp, prev)
+- getlistindex method return the a index which indicates size belongs to which of the freelists
+- add and remove take a block pointer bp as argument and insert(remove)
+this block into(from) the free list.
+- FreeLists are doubly linked with prev and next pointers to each block.
+- A new free block is always inserted at the beginning of the list.
+- The payload of a free block is used to store the addresses of both it's
+prev and next free blocks in the free list.
+
+BEST-FIT SEARCH :
+- Implemented using the method -   
+       static void *find_fit(size_t asize)
+- Takes the number of bytes to be allocated as the argument and returns the
+address of the block allocated.
+- First finds the index of a the given size.
+- Now it iterates through the list with the given index and finds the best suitable block .
+  If the block with given size is not found then it goes through higher free list uptil max index is attained.
+- If no fit is found, it returns NULL.
+
+REALLOCATION :
+- Implemented using the method -   
+       void *mm_realloc(void *ptr,size_t size)
+- If the size is zero then we free the pointer.
+- If the pointer is null then we just call mm_malloc() method.
+- Then we check if the required size is less than the actual size. If the
+former is less, then there is no need to reallocate.
+- To avoid fragmentation, we check if the block next to the block to be
+reallocated is free. If it is free and the combined size of the current
+block and the block next to it is >= the required size, then there is no need
+to copy the memory and these two blocks - ptr and getNext(ptr) are coalesced
+and the same address (ptr) is returned. At the same time, we ensure that the
+free block is removed from the explicit list.
+- If the given arguments don't satisfy any of the above possibilities, then
+new memory is allocated and content is copied to the new memory. The old
+memory is now freed and removed from the free list.
+
+COALESCING :
+- Implemented using the method -    static void *coalesce(void *bp)
+- Takes the pointer of the block to be coalesced.
+- All the four cases possible are checked by using two bool variables
+prev_alloc and next_alloc.
+    1) both prev and next are allocated.
+    2) only next block is free,
+    3) only prev block is free
+    4) both prev and next ate free.
+- It is in this method that free blocks are inserted into and removed from
+their respective free list.
+
+NOTE: Implementation of rest of the methods is not changed except for few changes
+in the methods place - used for placing a block in the free block, split the block
+if the remaining size can be formed into a new block and mm_init - used for
+initializing the heap.
